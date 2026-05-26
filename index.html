@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>七年级不规则动词背诵卡片</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&family=Playfair+Display:wght@700&display=swap');
+
+  :root {
+    --bg: #0f0f14;
+    --surface: #1a1a24;
+    --surface2: #22223a;
+    --accent: #7c6fff;
+    --accent2: #ff6b9d;
+    --accent3: #4ecdc4;
+    --gold: #ffd166;
+    --text: #e8e8f0;
+    --text-muted: #888;
+    --border: rgba(124,111,255,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,111,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header {
+    text-align: center;
+    padding: 36px 20px 16px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+  .header p { color: var(--text-muted); font-size: 0.82rem; letter-spacing: 1px; }
+
+  /* Plan tabs */
+  .plan-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 20px;
+  }
+  .plan-tab {
+    padding: 9px 22px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .plan-tab:hover { border-color: var(--accent); color: var(--text); }
+  .plan-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 18px rgba(124,111,255,0.4); }
+  .plan-tab[data-plan="7"].active { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 0 18px rgba(255,107,157,0.4); }
+  .plan-tab[data-plan="5"].active { background: var(--accent3); border-color: var(--accent3); color: #0f0f14; box-shadow: 0 0 18px rgba(78,205,196,0.4); }
+
+  /* Day nav */
+  .day-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 20px 16px;
+    flex-wrap: wrap;
+  }
+  .day-label { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--text-muted); margin-right: 4px; }
+  .day-btn {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .day-btn:hover { border-color: var(--accent); color: var(--text); }
+  .day-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 10px rgba(124,111,255,0.5); }
+  .plan-7 .day-btn.active { background: var(--accent2); border-color: var(--accent2); }
+  .plan-5 .day-btn.active { background: var(--accent3); border-color: var(--accent3); color: #0f0f14; }
+
+  /* Progress */
+  .progress-wrap {
+    max-width: 580px;
+    margin: 0 auto 20px;
+    padding: 0 20px;
+  }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+  .progress-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card wrapper */
+  .card-area {
+    max-width: 580px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* THE CARD — simple block, no 3D */
+  .flashcard {
+    width: 100%;
+    min-height: 300px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: linear-gradient(135deg, var(--surface) 0%, rgba(124,111,255,0.08) 100%);
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 28px 48px;
+    gap: 14px;
+  }
+  .flashcard:hover { border-color: rgba(124,111,255,0.5); box-shadow: 0 8px 32px rgba(124,111,255,0.15); }
+  .flashcard.is-back {
+    background: linear-gradient(135deg, var(--surface) 0%, rgba(78,205,196,0.08) 100%);
+  }
+  .flashcard.is-back:hover { border-color: rgba(78,205,196,0.5); box-shadow: 0 8px 32px rgba(78,205,196,0.15); }
+
+  /* flip animation */
+  .flashcard.flip-out {
+    animation: flipOut 0.18s ease-in forwards;
+  }
+  .flashcard.flip-in {
+    animation: flipIn 0.18s ease-out forwards;
+  }
+  @keyframes flipOut {
+    from { transform: scaleX(1); opacity: 1; }
+    to   { transform: scaleX(0); opacity: 0.3; }
+  }
+  @keyframes flipIn {
+    from { transform: scaleX(0); opacity: 0.3; }
+    to   { transform: scaleX(1); opacity: 1; }
+  }
+
+  .card-num {
+    position: absolute;
+    top: 16px; left: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+  }
+  .card-tag {
+    position: absolute;
+    top: 14px; right: 16px;
+    font-size: 0.62rem;
+    padding: 2px 10px;
+    border-radius: 100px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.5px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+  .is-back .card-tag { border-color: var(--accent3); color: var(--accent3); }
+
+  .card-hint {
+    position: absolute;
+    bottom: 14px;
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* Front content */
+  .front-zh {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-align: center;
+  }
+  .front-base {
+    font-size: 2.4rem;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 1px;
+    text-align: center;
+  }
+  .front-divider {
+    width: 40px; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 1px;
+  }
+
+  /* Back content */
+  .back-zh {
+    font-size: 1.1rem;
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+  .verb-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Space Mono', monospace;
+  }
+  .verb-table th {
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    padding: 5px 6px 8px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+  .verb-table td {
+    padding: 9px 6px;
+    text-align: center;
+    font-size: 0.82rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .verb-table tr:last-child td { border-bottom: none; }
+  .col-base { color: var(--accent3); font-weight: 700; }
+  .col-s    { color: var(--text); }
+  .col-ing  { color: var(--text-muted); }
+  .col-past { color: var(--accent2); font-weight: 700; }
+  .col-pp   { color: var(--gold); font-weight: 700; }
+
+  /* Controls */
+  .card-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .ctrl-btn {
+    padding: 10px 26px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.74rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .ctrl-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(124,111,255,0.1); }
+  .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .ctrl-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 14px rgba(124,111,255,0.3); }
+  .ctrl-btn.primary:hover { box-shadow: 0 4px 22px rgba(124,111,255,0.5); transform: translateY(-1px); }
+  .card-counter { font-family: 'Space Mono', monospace; font-size: 0.78rem; color: var(--text-muted); min-width: 56px; text-align: center; }
+
+  /* List */
+  .list-toggle-btn {
+    display: block;
+    margin: 18px auto 0;
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-family: 'Space Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .list-toggle-btn:hover { color: var(--text); border-color: var(--accent); }
+
+  /* Speak button */
+  .speak-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    border: 1.5px solid rgba(78,205,196,0.35);
+    background: rgba(78,205,196,0.08);
+    color: var(--accent3);
+    font-size: 0.72rem;
+    font-family: 'Space Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    user-select: none;
+  }
+  .speak-btn:hover { background: rgba(78,205,196,0.18); border-color: var(--accent3); }
+  .speak-btn.speaking { background: rgba(78,205,196,0.25); border-color: var(--accent3); color: #fff; animation: pulse 0.8s infinite alternate; }
+  @keyframes pulse { from { box-shadow: 0 0 0 rgba(78,205,196,0.4); } to { box-shadow: 0 0 10px rgba(78,205,196,0.6); } }
+
+  .speak-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    width: 100%;
+  }
+  .speak-row .speak-btn { font-size: 0.65rem; padding: 4px 10px; }
+
+  .day-list {
+    max-width: 580px;
+    margin: 16px auto 0;
+    padding: 0 20px 40px;
+    display: none;
+  }
+  .day-list.visible { display: block; }
+
+  .list-header {
+    display: grid;
+    grid-template-columns: 28px 70px 1fr 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 6px 12px;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 4px;
+  }
+  .list-grid { display: grid; gap: 5px; }
+  .list-row {
+    display: grid;
+    grid-template-columns: 28px 70px 1fr 1fr 1fr 1fr;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--surface);
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: border-color 0.15s;
+    font-size: 0.73rem;
+  }
+  .list-row:hover { border-color: var(--border); }
+  .r-num  { color: var(--text-muted); font-family: 'Space Mono', monospace; font-size: 0.62rem; }
+  .r-zh   { color: var(--gold); }
+  .r-base { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--text); }
+  .r-ing  { font-family: 'Space Mono', monospace; color: var(--text-muted); font-size: 0.68rem; }
+  .r-past { font-family: 'Space Mono', monospace; color: var(--accent2); font-size: 0.68rem; }
+  .r-pp   { font-family: 'Space Mono', monospace; color: var(--gold); font-size: 0.68rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>不规则动词 · 背诵卡片</h1>
+  <p>七年级上册 · 100个不规则动词 · 三种复习计划</p>
+</div>
+
+<div class="plan-tabs">
+  <button class="plan-tab active" data-plan="10" onclick="setPlan(10)">📅 10天计划</button>
+  <button class="plan-tab" data-plan="7" onclick="setPlan(7)">⚡ 7天计划</button>
+  <button class="plan-tab" data-plan="5" onclick="setPlan(5)">🔥 5天计划</button>
+</div>
+
+<div class="day-nav" id="dayNav"></div>
+
+<div class="progress-wrap">
+  <div class="progress-info">
+    <span id="progressLabel">第 1 天 · 10天计划</span>
+    <span id="progressCount">1 / 10</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:10%"></div>
+  </div>
+</div>
+
+<div class="card-area">
+  <!-- Single card div, JS toggles front/back content -->
+  <div class="flashcard" id="flashcard" onclick="flipCard()">
+    <div class="card-num" id="cardNum">#1</div>
+    <div class="card-tag" id="cardTag">正面</div>
+
+    <!-- Front -->
+    <div id="frontContent" style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+      <div class="front-zh" id="frontZh">唤醒，醒来</div>
+      <div class="front-divider"></div>
+      <div class="front-base" id="frontBase">awake</div>
+      <button class="speak-btn" id="speakFront" onclick="event.stopPropagation(); speakWord(document.getElementById('frontBase').textContent, 'speakFront')">🔊 朗读原形</button>
+    </div>
+
+    <!-- Back (hidden initially) -->
+    <div id="backContent" style="display:none; width:100%;display:none;flex-direction:column;align-items:center;gap:10px;">
+      <div class="back-zh" id="backZh">唤醒，醒来</div>
+      <table class="verb-table">
+        <thead>
+          <tr>
+            <th>原形</th><th>三单</th><th>现在分词</th><th>过去式</th><th>过去分词</th>
+          </tr>
+        </thead>
+        <tbody id="verbTableBody"></tbody>
+      </table>
+      <div class="speak-row" id="speakRow"></div>
+    </div>
+
+    <div class="card-hint" id="cardHint">👆 点击翻转查看变化形式</div>
+  </div>
+
+  <div class="card-controls">
+    <button class="ctrl-btn" id="prevBtn" onclick="prevCard()" disabled>← 上一个</button>
+    <span class="card-counter" id="cardCounter">1 / 10</span>
+    <button class="ctrl-btn primary" id="nextBtn" onclick="nextCard()">下一个 →</button>
+  </div>
+
+  <button class="list-toggle-btn" onclick="toggleList()">📋 查看今日单词列表</button>
+</div>
+
+<div class="day-list" id="dayList">
+  <div class="list-header">
+    <span>#</span><span>中文</span><span>原形</span><span>现在分词</span><span>过去式</span><span>过去分词</span>
+  </div>
+  <div class="list-grid" id="listGrid"></div>
+</div>
+
+<script>
+const VERBS = [
+  {n:1,  zh:"唤醒，醒来",  base:"awake",       s:"awakes",      ing:"awaking",      past:"awoke",         pp:"awoken/awake"},
+  {n:2,  zh:"是",          base:"be",           s:"is",          ing:"being",         past:"was/were",      pp:"been"},
+  {n:3,  zh:"忍受，生",    base:"bear",         s:"bears",       ing:"bearing",       past:"bore",          pp:"borne/born"},
+  {n:4,  zh:"打败，敲打",  base:"beat",         s:"beats",       ing:"beating",       past:"beat",          pp:"beaten"},
+  {n:5,  zh:"变成",        base:"become",       s:"becomes",     ing:"becoming",      past:"became",        pp:"become"},
+  {n:6,  zh:"开始",        base:"begin",        s:"begins",      ing:"beginning",     past:"began",         pp:"begun"},
+  {n:7,  zh:"流血",        base:"bleed",        s:"bleeds",      ing:"bleeding",      past:"bled",          pp:"bled"},
+  {n:8,  zh:"吹",          base:"blow",         s:"blows",       ing:"blowing",       past:"blew",          pp:"blown"},
+  {n:9,  zh:"打破",        base:"break",        s:"breaks",      ing:"breaking",      past:"broke",         pp:"broken"},
+  {n:10, zh:"带来",        base:"bring",        s:"brings",      ing:"bringing",      past:"brought",       pp:"brought"},
+  {n:11, zh:"建造",        base:"build",        s:"builds",      ing:"building",      past:"built",         pp:"built"},
+  {n:12, zh:"燃烧",        base:"burn",         s:"burns",       ing:"burning",       past:"burnt/burned",  pp:"burnt/burned"},
+  {n:13, zh:"买",          base:"buy",          s:"buys",        ing:"buying",        past:"bought",        pp:"bought"},
+  {n:14, zh:"抓住",        base:"catch",        s:"catches",     ing:"catching",      past:"caught",        pp:"caught"},
+  {n:15, zh:"选择",        base:"choose",       s:"chooses",     ing:"choosing",      past:"chose",         pp:"chosen"},
+  {n:16, zh:"来",          base:"come",         s:"comes",       ing:"coming",        past:"came",          pp:"come"},
+  {n:17, zh:"花费",        base:"cost",         s:"costs",       ing:"costing",       past:"cost",          pp:"cost"},
+  {n:18, zh:"切，割",      base:"cut",          s:"cuts",        ing:"cutting",       past:"cut",           pp:"cut"},
+  {n:19, zh:"处理，分配",  base:"deal",         s:"deals",       ing:"dealing",       past:"dealt",         pp:"dealt"},
+  {n:20, zh:"挖掘",        base:"dig",          s:"digs",        ing:"digging",       past:"dug",           pp:"dug"},
+  {n:21, zh:"做",          base:"do",           s:"does",        ing:"doing",         past:"did",           pp:"done"},
+  {n:22, zh:"画，拉",      base:"draw",         s:"draws",       ing:"drawing",       past:"drew",          pp:"drawn"},
+  {n:23, zh:"做梦",        base:"dream",        s:"dreams",      ing:"dreaming",      past:"dreamt/dreamed",pp:"dreamt/dreamed"},
+  {n:24, zh:"喝",          base:"drink",        s:"drinks",      ing:"drinking",      past:"drank",         pp:"drunk"},
+  {n:25, zh:"驾驶",        base:"drive",        s:"drives",      ing:"driving",       past:"drove",         pp:"driven"},
+  {n:26, zh:"吃",          base:"eat",          s:"eats",        ing:"eating",        past:"ate",           pp:"eaten"},
+  {n:27, zh:"落下",        base:"fall",         s:"falls",       ing:"falling",       past:"fell",          pp:"fallen"},
+  {n:28, zh:"喂养",        base:"feed",         s:"feeds",       ing:"feeding",       past:"fed",           pp:"fed"},
+  {n:29, zh:"感觉",        base:"feel",         s:"feels",       ing:"feeling",       past:"felt",          pp:"felt"},
+  {n:30, zh:"打架，战斗",  base:"fight",        s:"fights",      ing:"fighting",      past:"fought",        pp:"fought"},
+  {n:31, zh:"发现，找到",  base:"find",         s:"finds",       ing:"finding",       past:"found",         pp:"found"},
+  {n:32, zh:"飞",          base:"fly",          s:"flies",       ing:"flying",        past:"flew",          pp:"flown"},
+  {n:33, zh:"忘记",        base:"forget",       s:"forgets",     ing:"forgetting",    past:"forgot",        pp:"forgotten"},
+  {n:34, zh:"结冰，冻结",  base:"freeze",       s:"freezes",     ing:"freezing",      past:"froze",         pp:"frozen"},
+  {n:35, zh:"得到",        base:"get",          s:"gets",        ing:"getting",       past:"got",           pp:"got/gotten"},
+  {n:36, zh:"给",          base:"give",         s:"gives",       ing:"giving",        past:"gave",          pp:"given"},
+  {n:37, zh:"去",          base:"go",           s:"goes",        ing:"going",         past:"went",          pp:"gone"},
+  {n:38, zh:"生长，种植",  base:"grow",         s:"grows",       ing:"growing",       past:"grew",          pp:"grown"},
+  {n:39, zh:"悬挂",        base:"hang",         s:"hangs",       ing:"hanging",       past:"hung",          pp:"hung"},
+  {n:40, zh:"有，吃",      base:"have",         s:"has",         ing:"having",        past:"had",           pp:"had"},
+  {n:41, zh:"听见",        base:"hear",         s:"hears",       ing:"hearing",       past:"heard",         pp:"heard"},
+  {n:42, zh:"躲藏",        base:"hide",         s:"hides",       ing:"hiding",        past:"hid",           pp:"hidden"},
+  {n:43, zh:"撞击，击中",  base:"hit",          s:"hits",        ing:"hitting",       past:"hit",           pp:"hit"},
+  {n:44, zh:"握住，举行",  base:"hold",         s:"holds",       ing:"holding",       past:"held",          pp:"held"},
+  {n:45, zh:"受伤",        base:"hurt",         s:"hurts",       ing:"hurting",       past:"hurt",          pp:"hurt"},
+  {n:46, zh:"保持",        base:"keep",         s:"keeps",       ing:"keeping",       past:"kept",          pp:"kept"},
+  {n:47, zh:"知道，认识",  base:"know",         s:"knows",       ing:"knowing",       past:"knew",          pp:"known"},
+  {n:48, zh:"放置，下蛋",  base:"lay",          s:"lays",        ing:"laying",        past:"laid",          pp:"laid"},
+  {n:49, zh:"领导，引导",  base:"lead",         s:"leads",       ing:"leading",       past:"led",           pp:"led"},
+  {n:50, zh:"学习",        base:"learn",        s:"learns",      ing:"learning",      past:"learnt/learned", pp:"learnt/learned"},
+  {n:51, zh:"离开",        base:"leave",        s:"leaves",      ing:"leaving",       past:"left",          pp:"left"},
+  {n:52, zh:"借出",        base:"lend",         s:"lends",       ing:"lending",       past:"lent",          pp:"lent"},
+  {n:53, zh:"让",          base:"let",          s:"lets",        ing:"letting",       past:"let",           pp:"let"},
+  {n:54, zh:"躺（位于）",  base:"lie",          s:"lies",        ing:"lying",         past:"lay",           pp:"lain"},
+  {n:55, zh:"点燃，照亮",  base:"light",        s:"lights",      ing:"lighting",      past:"lit/lighted",   pp:"lit/lighted"},
+  {n:56, zh:"丢失",        base:"lose",         s:"loses",       ing:"losing",        past:"lost",          pp:"lost"},
+  {n:57, zh:"制造，使",    base:"make",         s:"makes",       ing:"making",        past:"made",          pp:"made"},
+  {n:58, zh:"意思是，意味",base:"mean",         s:"means",       ing:"meaning",       past:"meant",         pp:"meant"},
+  {n:59, zh:"遇见",        base:"meet",         s:"meets",       ing:"meeting",       past:"met",           pp:"met"},
+  {n:60, zh:"弄错",        base:"mistake",      s:"mistakes",    ing:"mistaking",     past:"mistook",       pp:"mistaken"},
+  {n:61, zh:"付款",        base:"pay",          s:"pays",        ing:"paying",        past:"paid",          pp:"paid"},
+  {n:62, zh:"放",          base:"put",          s:"puts",        ing:"putting",       past:"put",           pp:"put"},
+  {n:63, zh:"读",          base:"read",         s:"reads",       ing:"reading",       past:"read /red/",    pp:"read /red/"},
+  {n:64, zh:"骑",          base:"ride",         s:"rides",       ing:"riding",        past:"rode",          pp:"ridden"},
+  {n:65, zh:"按铃，响",    base:"ring",         s:"rings",       ing:"ringing",       past:"rang",          pp:"rung"},
+  {n:66, zh:"上升，升起",  base:"rise",         s:"rises",       ing:"rising",        past:"rose",          pp:"risen"},
+  {n:67, zh:"跑",          base:"run",          s:"runs",        ing:"running",       past:"ran",           pp:"run"},
+  {n:68, zh:"说",          base:"say",          s:"says",        ing:"saying",        past:"said",          pp:"said"},
+  {n:69, zh:"看见",        base:"see",          s:"sees",        ing:"seeing",        past:"saw",           pp:"seen"},
+  {n:70, zh:"卖",          base:"sell",         s:"sells",       ing:"selling",       past:"sold",          pp:"sold"},
+  {n:71, zh:"发送，派遣",  base:"send",         s:"sends",       ing:"sending",       past:"sent",          pp:"sent"},
+  {n:72, zh:"设置，安置",  base:"set",          s:"sets",        ing:"setting",       past:"set",           pp:"set"},
+  {n:73, zh:"摇动，震动",  base:"shake",        s:"shakes",      ing:"shaking",       past:"shook",         pp:"shaken"},
+  {n:74, zh:"照耀，发光",  base:"shine",        s:"shines",      ing:"shining",       past:"shone",         pp:"shone"},
+  {n:75, zh:"射击",        base:"shoot",        s:"shoots",      ing:"shooting",      past:"shot",          pp:"shot"},
+  {n:76, zh:"关闭",        base:"shut",         s:"shuts",       ing:"shutting",      past:"shut",          pp:"shut"},
+  {n:77, zh:"唱歌",        base:"sing",         s:"sings",       ing:"singing",       past:"sang",          pp:"sung"},
+  {n:78, zh:"坐",          base:"sit",          s:"sits",        ing:"sitting",       past:"sat",           pp:"sat"},
+  {n:79, zh:"睡觉",        base:"sleep",        s:"sleeps",      ing:"sleeping",      past:"slept",         pp:"slept"},
+  {n:80, zh:"闻",          base:"smell",        s:"smells",      ing:"smelling",      past:"smelt/smelled", pp:"smelt/smelled"},
+  {n:81, zh:"说话",        base:"speak",        s:"speaks",      ing:"speaking",      past:"spoke",         pp:"spoken"},
+  {n:82, zh:"加速",        base:"speed",        s:"speeds",      ing:"speeding",      past:"sped/speeded",  pp:"sped/speeded"},
+  {n:83, zh:"拼写",        base:"spell",        s:"spells",      ing:"spelling",      past:"spelt/spelled", pp:"spelt/spelled"},
+  {n:84, zh:"花费，度过",  base:"spend",        s:"spends",      ing:"spending",      past:"spent",         pp:"spent"},
+  {n:85, zh:"传播，展开",  base:"spread",       s:"spreads",     ing:"spreading",     past:"spread",        pp:"spread"},
+  {n:86, zh:"站立",        base:"stand",        s:"stands",      ing:"standing",      past:"stood",         pp:"stood"},
+  {n:87, zh:"偷窃",        base:"steal",        s:"steals",      ing:"stealing",      past:"stole",         pp:"stolen"},
+  {n:88, zh:"粘住，刺",    base:"stick",        s:"sticks",      ing:"sticking",      past:"stuck",         pp:"stuck"},
+  {n:89, zh:"打扫",        base:"sweep",        s:"sweeps",      ing:"sweeping",      past:"swept",         pp:"swept"},
+  {n:90, zh:"游泳",        base:"swim",         s:"swims",       ing:"swimming",      past:"swam",          pp:"swum"},
+  {n:91, zh:"拿，取",      base:"take",         s:"takes",       ing:"taking",        past:"took",          pp:"taken"},
+  {n:92, zh:"教",          base:"teach",        s:"teaches",     ing:"teaching",      past:"taught",        pp:"taught"},
+  {n:93, zh:"告诉",        base:"tell",         s:"tells",       ing:"telling",       past:"told",          pp:"told"},
+  {n:94, zh:"想，认为",    base:"think",        s:"thinks",      ing:"thinking",      past:"thought",       pp:"thought"},
+  {n:95, zh:"扔",          base:"throw",        s:"throws",      ing:"throwing",      past:"threw",         pp:"thrown"},
+  {n:96, zh:"理解",        base:"understand",   s:"understands", ing:"understanding", past:"understood",    pp:"understood"},
+  {n:97, zh:"醒来",        base:"wake",         s:"wakes",       ing:"waking",        past:"woke",          pp:"woken"},
+  {n:98, zh:"穿，戴",      base:"wear",         s:"wears",       ing:"wearing",       past:"wore",          pp:"worn"},
+  {n:99, zh:"赢",          base:"win",          s:"wins",        ing:"winning",       past:"won",           pp:"won"},
+  {n:100,zh:"写",          base:"write",        s:"writes",      ing:"writing",       past:"wrote",         pp:"written"},
+];
+
+function splitDays(n) {
+  const size = Math.ceil(100 / n);
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const chunk = VERBS.slice(i * size, Math.min(i * size + size, 100));
+    if (chunk.length) out.push(chunk);
+  }
+  return out;
+}
+
+const PLANS = { 10: splitDays(10), 7: splitDays(7), 5: splitDays(5) };
+
+let plan = 10, day = 0, idx = 0, flipped = false, listOpen = false;
+
+function verbs() { return PLANS[plan][day]; }
+
+function setPlan(n) {
+  plan = n; day = 0; idx = 0; flipped = false;
+  document.querySelectorAll('.plan-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.plan-tab[data-plan="${n}"]`).classList.add('active');
+  buildDayNav(); showCard(); renderList(); updateProgress();
+}
+
+function buildDayNav() {
+  const nav = document.getElementById('dayNav');
+  nav.className = `day-nav plan-${plan}`;
+  const days = PLANS[plan].length;
+  nav.innerHTML = `<span class="day-label">第几天：</span>` +
+    Array.from({length: days}, (_, i) =>
+      `<button class="day-btn${i===day?' active':''}" onclick="setDay(${i})">${i+1}</button>`
+    ).join('');
+}
+
+function setDay(d) {
+  day = d; idx = 0; flipped = false;
+  document.querySelectorAll('.day-btn').forEach((b,i) => b.classList.toggle('active', i===d));
+  showCard(); renderList(); updateProgress();
+}
+
+function showCard() {
+  const v = verbs()[idx];
+  const card = document.getElementById('flashcard');
+  const front = document.getElementById('frontContent');
+  const back  = document.getElementById('backContent');
+  const hint  = document.getElementById('cardHint');
+  const tag   = document.getElementById('cardTag');
+
+  document.getElementById('cardNum').textContent = `#${v.n}`;
+
+  if (!flipped) {
+    card.classList.remove('is-back');
+    front.style.display = 'flex';
+    back.style.display  = 'none';
+    tag.textContent  = '正面';
+    hint.textContent = '👆 点击翻转查看变化形式';
+    document.getElementById('frontZh').textContent   = v.zh;
+    document.getElementById('frontBase').textContent = v.base;
+    document.getElementById('speakFront').textContent = `🔊 朗读 ${v.base}`;
+  } else {
+    card.classList.add('is-back');
+    front.style.display = 'none';
+    back.style.display  = 'flex';
+    tag.textContent  = '背面';
+    hint.textContent = '👆 再次点击回到正面';
+    document.getElementById('backZh').textContent = v.zh;
+    document.getElementById('verbTableBody').innerHTML =
+      `<tr>
+        <td class="col-base">${v.base}</td>
+        <td class="col-s">${v.s}</td>
+        <td class="col-ing">${v.ing}</td>
+        <td class="col-past">${v.past}</td>
+        <td class="col-pp">${v.pp}</td>
+      </tr>`;
+    // Build per-form speak buttons
+    const forms = [
+      {label: `原形 ${v.base}`,    word: v.base},
+      {label: `三单 ${v.s}`,      word: v.s},
+      {label: `现分 ${v.ing}`,    word: v.ing},
+      {label: `过去 ${v.past}`,   word: v.past.split('/')[0]},
+      {label: `过分 ${v.pp}`,     word: v.pp.split('/')[0]},
+    ];
+    document.getElementById('speakRow').innerHTML = forms.map((f,i) =>
+      `<button class="speak-btn" id="spk${i}" onclick="event.stopPropagation(); speakWord('${f.word.replace(/'/g,"\\'")}', 'spk${i}')">🔊 ${f.label}</button>`
+    ).join('');
+  }
+
+  const list = verbs();
+  document.getElementById('cardCounter').textContent = `${idx+1} / ${list.length}`;
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = idx === list.length - 1;
+}
+
+function flipCard() {
+  flipped = !flipped;
+  const card = document.getElementById('flashcard');
+  card.classList.add('flip-out');
+  setTimeout(() => {
+    showCard();
+    card.classList.remove('flip-out');
+    card.classList.add('flip-in');
+    setTimeout(() => card.classList.remove('flip-in'), 180);
+  }, 180);
+}
+
+function nextCard() {
+  if (idx < verbs().length - 1) { idx++; flipped = false; showCard(); updateProgress(); }
+}
+function prevCard() {
+  if (idx > 0) { idx--; flipped = false; showCard(); updateProgress(); }
+}
+
+function updateProgress() {
+  const total = verbs().length;
+  const pct = Math.round(((idx + 1) / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressCount').textContent = `${idx+1} / ${total}`;
+  document.getElementById('progressLabel').textContent = `第 ${day+1} 天 · ${plan}天计划`;
+}
+
+function renderList() {
+  document.getElementById('listGrid').innerHTML = verbs().map(v =>
+    `<div class="list-row">
+      <span class="r-num">${v.n}</span>
+      <span class="r-zh">${v.zh}</span>
+      <span class="r-base">${v.base}</span>
+      <span class="r-ing">${v.ing}</span>
+      <span class="r-past">${v.past}</span>
+      <span class="r-pp">${v.pp}</span>
+    </div>`
+  ).join('');
+}
+
+function toggleList() {
+  listOpen = !listOpen;
+  document.getElementById('dayList').classList.toggle('visible', listOpen);
+  document.querySelector('.list-toggle-btn').textContent = listOpen ? '🔼 收起列表' : '📋 查看今日单词列表';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextCard();
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevCard();
+  else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+});
+
+// ---- Text-to-Speech ----
+let bestVoice = null;
+
+function cleanWord(word) {
+  return word.replace(/\/[^/]+\//g, '').split('/')[0].trim();
+}
+
+// Pick the best available English voice — prefer neural/premium ones
+function pickVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+
+  const preferred = [
+    'Google US English',
+    'Microsoft Aria Online (Natural)',
+    'Microsoft Guy Online (Natural)',
+    'Microsoft Jenny Online (Natural)',
+    'Samantha',          // macOS/iOS — very natural
+    'Karen',             // macOS Australian, clear
+    'Daniel',            // macOS British, clear
+    'Google UK English Female',
+    'Google UK English Male',
+  ];
+
+  for (const name of preferred) {
+    const v = voices.find(v => v.name === name);
+    if (v) return v;
+  }
+  // Fallback: any en-US voice
+  return voices.find(v => v.lang === 'en-US') ||
+         voices.find(v => v.lang.startsWith('en')) ||
+         null;
+}
+
+// Voices load async on first call — cache once ready
+window.speechSynthesis.onvoiceschanged = () => { bestVoice = pickVoice(); };
+
+function speakWord(word, btnId) {
+  const clean = cleanWord(word);
+  if (!clean) return;
+
+  window.speechSynthesis.cancel();
+  document.querySelectorAll('.speak-btn').forEach(b => b.classList.remove('speaking'));
+  const btn = btnId ? document.getElementById(btnId) : document.getElementById('speakFront');
+  if (btn) btn.classList.add('speaking');
+
+  if (!bestVoice) bestVoice = pickVoice();
+
+  const u = new SpeechSynthesisUtterance(clean);
+  u.lang  = 'en-US';
+  u.rate  = 0.82;
+  u.pitch = 1.0;
+  if (bestVoice) u.voice = bestVoice;
+
+  const done = () => { if (btn) btn.classList.remove('speaking'); };
+  u.onend  = done;
+  u.onerror = done;
+  window.speechSynthesis.speak(u);
+}
+
+// Init
+buildDayNav();
+showCard();
+renderList();
+updateProgress();
+</script>
+</body>
+</html>
